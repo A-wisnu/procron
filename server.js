@@ -12,20 +12,31 @@ let genAI;
 
 async function initializeAI() {
     try {
-        const data = await fs.readFile('apikey.txt', 'utf8');
-        const lines = data.split('\n');
-        const apiKeyLine = lines.find(line => line.startsWith('api_key:'));
-        const modelLine = lines.find(line => line.startsWith('model:'));
+        const apiKey = process.env.GEMINI_API_KEY;
 
-        if (!apiKeyLine) {
-            throw new Error("API key not found in apikey.txt");
+        if (!apiKey) {
+            // Fallback for local development if apikey.txt exists
+            try {
+                const data = await fs.readFile('apikey.txt', 'utf8');
+                const lines = data.split('\n');
+                const apiKeyLine = lines.find(line => line.startsWith('api_key:'));
+                if (apiKeyLine) {
+                    genAI = new GoogleGenerativeAI(apiKeyLine.split(':')[1].trim());
+                    console.log("Initialized AI with apikey.txt for local development.");
+                    return;
+                }
+            } catch (fsError) {
+                // Ignore if apikey.txt doesn't exist, the main error will be thrown
+            }
+            throw new Error("GEMINI_API_KEY environment variable not found.");
         }
         
-        const apiKey = apiKeyLine.split(':')[1].trim();
         genAI = new GoogleGenerativeAI(apiKey);
+        console.log("Initialized AI with environment variable.");
+
     } catch (error) {
-        console.error("Error initializing GoogleGenerativeAI:", error);
-        process.exit(1); // Exit if we can't get API key
+        console.error("Error initializing GoogleGenerativeAI:", error.message);
+        // Do not exit the process in a serverless environment
     }
 }
 

@@ -1,0 +1,2 @@
+api_key: AIzaSyAOx180lTf8_SvH2VrxQknGdboL27evbuA
+model  : gemini-2.0-flash

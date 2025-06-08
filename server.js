@@ -1,12 +1,13 @@
 const express = require('express');
 const fs = require('fs').promises;
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const path = require('path');
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
-app.use(express.static('public')); // To serve static files like index.html
+app.use(express.static(path.join(__dirname, 'public')));
 
 let genAI;
 
